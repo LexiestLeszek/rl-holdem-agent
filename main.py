@@ -208,7 +208,55 @@ def test_agent(env, agent, num_games=1000):
 
 # Main execution
 env = TexasHoldemEnvironment()
-agent = QLearningAgent()
+agent = QLearningAgent(alpha=0.05, gamma=0.95, epsilon=0.05)
 
-train_agent(env, agent)
+# Decay epsilon over time
+epsilon_decay = 0.99
+epsilon_min = 0.01
+epsilon = agent.epsilon
+
+for episode in range(5000000):
+    state = env.reset()
+    done = False
+    
+    # Simulate pre-flop
+    action = agent.choose_action(state)
+    next_state, reward, done, _ = env.step(action)
+    agent.update(state, action, next_state, reward)
+    state = next_state
+    
+    if not done:
+        # Simulate flop
+        env.deal_community_card()
+        env.deal_community_card()
+        env.deal_community_card()
+        
+        action = agent.choose_action(env.get_state())
+        next_state, reward, done, _ = env.step(action)
+        agent.update(env.get_state(), action, next_state, reward)
+        
+        if not done:
+            # Simulate turn
+            env.deal_community_card()
+            
+            action = agent.choose_action(env.get_state())
+            next_state, reward, done, _ = env.step(action)
+            agent.update(env.get_state(), action, next_state, reward)
+            
+            if not done:
+                # Simulate river
+                env.deal_community_card()
+                
+                action = agent.choose_action(env.get_state())
+                next_state, reward, done, _ = env.step(action)
+                agent.update(env.get_state(), action, next_state, reward)
+    
+    if episode % 1000 == 0:
+        print(f"Episode {episode}, Player chips: {env.player_chips}")
+    
+    # Decay epsilon
+    epsilon *= epsilon_decay
+    epsilon = max(epsilon, epsilon_min)
+    agent.epsilon = epsilon
+
 test_agent(env, agent)
