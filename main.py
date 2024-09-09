@@ -127,45 +127,8 @@ class QLearningAgent:
         new_q_value = (1 - self.alpha) * q_value + self.alpha * (reward + self.gamma * next_q_value)
         self.q_table[state][action] = new_q_value
 
-def train_agent(env, agent, num_episodes=1000000):
-    for episode in range(num_episodes):
-        state = env.reset()
-        done = False
-        
-        # Simulate pre-flop
-        action = agent.choose_action(state)
-        next_state, reward, done, _ = env.step(action)
-        agent.update(state, action, next_state, reward)
-        state = next_state
-        
-        if not done:
-            # Simulate flop
-            env.deal_community_card()
-            env.deal_community_card()
-            env.deal_community_card()
-            
-            action = agent.choose_action(env.get_state())
-            next_state, reward, done, _ = env.step(action)
-            agent.update(env.get_state(), action, next_state, reward)
-            
-            if not done:
-                # Simulate turn
-                env.deal_community_card()
-                
-                action = agent.choose_action(env.get_state())
-                next_state, reward, done, _ = env.step(action)
-                agent.update(env.get_state(), action, next_state, reward)
-                
-                if not done:
-                    # Simulate river
-                    env.deal_community_card()
-                    
-                    action = agent.choose_action(env.get_state())
-                    next_state, reward, done, _ = env.step(action)
-                    agent.update(env.get_state(), action, next_state, reward)
-        
-        if episode % 1000 == 0:
-            print(f"Episode {episode}, Player chips: {env.player_chips}")
+def train_agent(env, agent, num_episodes=10000):
+    return ""
 
 def test_agent(env, agent, num_games=1000):
     wins = 0
